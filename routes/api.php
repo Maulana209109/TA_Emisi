@@ -16,21 +16,22 @@ use App\Http\Controllers\Api\EmissionCategoryController;
 
 
 
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('/v1/auth/login', [AuthController::class, 'login']);
+Route::post('/v1/auth/register', [AuthController::class, 'register']);
+Route::post('/v1/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 // Route Private (Harus Login / Punya Token)
 Route::middleware('auth:sanctum')->group(function () {
     
 
     // User Profile Routes
-    Route::get('/user/profile', [UserController::class, 'show']);
-    Route::post('/user/profile', [UserController::class, 'update']);
+    Route::get('/v1/user/profile', [UserController::class, 'show']);
+    Route::post('/v1/user/profile', [UserController::class, 'update']);
 
     // Resource Routes
-    Route::apiResource('users', UserController::class);
-    Route::apiResource('emission/categories', EmissionCategoryController::class);
-    Route::apiResource('emission/factors', EmissionFactorController::class);
-    Route::apiResource('consumption/entries', ConsumptionEntryController::class);
+    Route::apiResource('v1/users', UserController::class);
+    Route::apiResource('v1/emission/categories', EmissionCategoryController::class);
+    Route::apiResource('v1/emission/factors', EmissionFactorController::class);
+    Route::apiResource('v1/consumption/entries', ConsumptionEntryController::class);
 });
 
 

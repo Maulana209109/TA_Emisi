@@ -45,6 +45,38 @@ class AuthController extends Controller
         ]);
     }
 
+
+    public function register(Request $request)
+    {
+        // 1. Validasi Input
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6|confirmed' // Butuh field 'password_confirmation' di body
+        ]);
+
+        // 2. Buat User Baru
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'user' // Default user biasa
+        ]);
+
+        // 3. Langsung buat token agar user otomatis login (Opsional, tapi disarankan)
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        // 4. Return JSON
+        return response()->json([
+            'success' => true,
+            'message' => 'Registrasi berhasil.',
+            'data' => [
+                'user' => $user,
+                'token' => $token,
+            ]
+        ], 201);
+    }
+
     /**
      * Handle Logout API
      */
