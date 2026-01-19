@@ -32,6 +32,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('v1/emission/categories', EmissionCategoryController::class);
     Route::apiResource('v1/emission/factors', EmissionFactorController::class);
     Route::apiResource('v1/consumption/entries', ConsumptionEntryController::class);
+
+    
 });
 
 

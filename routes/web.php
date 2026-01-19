@@ -19,8 +19,29 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 
 // --- GROUP ROUTE UNTUK ADMIN ---
 // Menggunakan middleware 'role:admin'
-Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+
+    // User Management
+    Route::get('/users', [AdminController::class, 'userIndex'])->name('users.index');
+    Route::post('/users', [AdminController::class, 'userStore'])->name('users.store');
+    Route::put('/users/{id}', [AdminController::class, 'userUpdate'])->name('users.update');
+    Route::delete('/users/{id}', [AdminController::class, 'userDestroy'])->name('users.destroy');
+
+    // Category Management
+    Route::get('/categories', [AdminController::class, 'categoryIndex'])->name('categories.index');
+    Route::post('/categories', [AdminController::class, 'categoryStore'])->name('categories.store');
+    Route::put('/categories/{id}', [AdminController::class, 'categoryUpdate'])->name('categories.update');
+    Route::delete('/categories/{id}', [AdminController::class, 'categoryDestroy'])->name('categories.destroy');
+
+    // Emission Factors Management
+    Route::get('/factors', [AdminController::class, 'factorIndex'])->name('factors.index');
+    Route::post('/factors', [AdminController::class, 'factorStore'])->name('factors.store');
+    Route::put('/factors/{id}', [AdminController::class, 'factorUpdate'])->name('factors.update');
+    Route::delete('/factors/{id}', [AdminController::class, 'factorDestroy'])->name('factors.destroy');
 
     // Tambahkan route admin lainnya di sini...
 });
