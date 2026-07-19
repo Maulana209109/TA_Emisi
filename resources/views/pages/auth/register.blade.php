@@ -1,94 +1,155 @@
 @extends('layouts.app')
 
+@section('title', 'Daftar Akun')
+
 @section('content')
-    <div class="  bg-gray-100 text-gray-900 flex justify-center items-center">
-        <div class="max-w-screen-xl m-0 sm:m-10 bg-white shadow sm:rounded-lg flex justify-center flex-1">
+<div class="min-h-screen flex gradient-hero">
 
-            <!-- Gambar di Kiri (Agar variatif, posisi gambar bisa ditukar jika mau) -->
-            <div class="flex items-center justify-center sm:hidden md:flex lg:flex xl:flex 2xl:flex hidden lg:flex">
-
-                <img src="{{ asset('assets/emisi.png') }}" alt="" class="w-3xl h-auto  ">
+    {{-- ===== LEFT PANEL (Branding) ===== --}}
+    <div class="hidden lg:flex flex-col justify-between w-5/12 p-12 text-white">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>
+                </svg>
             </div>
+            <span class="text-xl font-bold tracking-tight">Jejak Karbon</span>
+        </div>
 
-            <div class="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
-                <div>
-                    <img src="https://drive.google.com/uc?export=view&id=1MFiKAExRFF0-2YNpAZzIu1Sh52J8r16v"
-                        class="w-32 mx-auto" />
+        <div class="fade-in">
+            <h1 class="text-4xl font-extrabold leading-tight mb-5">
+                Mulai Perjalanan<br><span class="text-emerald-300">Hidup Hijau</span> Hari Ini.
+            </h1>
+            <p class="text-white/70 text-lg leading-relaxed mb-10">
+                Bergabung dan mulai lacak jejak karbon harianmu untuk masa depan yang lebih berkelanjutan.
+            </p>
+            <div class="space-y-4">
+                @foreach([
+                    ['icon' => '🌿', 'text' => 'Gratis untuk semua pengguna'],
+                    ['icon' => '🔒', 'text' => 'Data privasimu terlindungi'],
+                    ['icon' => '📱', 'text' => 'Mudah digunakan dari perangkat apapun'],
+                ] as $feat)
+                <div class="flex items-center gap-3 text-white/80">
+                    <span class="text-xl">{{ $feat['icon'] }}</span>
+                    <span class="text-sm font-medium">{{ $feat['text'] }}</span>
                 </div>
-                <div class="mt-12 flex flex-col items-center">
-                    <h1 class="text-2xl xl:text-3xl font-extrabold">
-                        Sign Up
-                    </h1>
-
-                    <div class="w-full flex-1 mt-8">
-                        <div class="my-5 border-b text-center">
-                            <div
-                                class="leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform translate-y-1/2">
-                                Create new account
-                            </div>
-                        </div>
-
-                        <!-- Form Register Laravel -->
-                        <form action="{{ route('register.submit') }}" method="POST" class="mx-auto max-w-xs">
-                            @csrf
-
-                            <!-- Input Nama -->
-                            <input
-                                class="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border @error('name') border-red-500 @else border-gray-200 @enderror placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
-                                type="text" name="name" value="{{ old('name') }}" placeholder="Full Name" required
-                                autofocus />
-                            @error('name')
-                                <p class="text-red-500 text-xs mt-1 ml-1">{{ $message }}</p>
-                            @enderror
-
-                            <!-- Input Email -->
-                            <input
-                                class="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border @error('email') border-red-500 @else border-gray-200 @enderror placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
-                                type="email" name="email" value="{{ old('email') }}" placeholder="Email" required />
-                            @error('email')
-                                <p class="text-red-500 text-xs mt-1 ml-1">{{ $message }}</p>
-                            @enderror
-
-                            <!-- Input Password -->
-                            <input
-                                class="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border @error('password') border-red-500 @else border-gray-200 @enderror placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
-                                type="password" name="password" placeholder="Password (Min. 6 chars)" required />
-                            @error('password')
-                                <p class="text-red-500 text-xs mt-1 ml-1">{{ $message }}</p>
-                            @enderror
-
-                            <!-- Input Confirm Password -->
-                            <input
-                                class="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
-                                type="password" name="password_confirmation" placeholder="Confirm Password" required />
-
-                            <!-- Tombol Submit -->
-                            <button type="submit"
-                                class="mt-5 tracking-wide font-semibold bg-green-400 text-white w-full py-4 rounded-lg hover:bg-green-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none">
-                                <svg class="w-6 h-6 -ml-2" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                                    <circle cx="8.5" cy="7" r="4" />
-                                    <path d="M20 8v6M23 11h-6" />
-                                </svg>
-                                <span class="ml-2">
-                                    Register
-                                </span>
-                            </button>
-
-                            <!-- Link ke Login -->
-                            <p class="mt-6 text-sm text-gray-600 text-center">
-                                Already have an account?
-                                <a href="{{ route('login') }}"
-                                    class="border-b border-gray-500 border-dotted font-bold text-green-600">
-                                    Sign In
-                                </a>
-                            </p>
-                        </form>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
 
+        <p class="text-white/40 text-xs">© {{ date('Y') }} Jejak Karbon · Sistem Monitoring Emisi Karbon</p>
     </div>
+
+    {{-- ===== RIGHT PANEL (Form) ===== --}}
+    <div class="flex-1 flex items-center justify-center p-6 bg-white/5 backdrop-blur-sm">
+        <div class="w-full max-w-md slide-up">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 border border-white/60">
+
+                {{-- Mobile Logo --}}
+                <div class="flex lg:hidden items-center gap-2 mb-6">
+                    <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>
+                        </svg>
+                    </div>
+                    <span class="font-bold text-gray-800">Jejak Karbon</span>
+                </div>
+
+                <h2 class="text-2xl font-bold text-gray-900 mb-1">Buat Akun Baru 🌱</h2>
+                <p class="text-gray-500 text-sm mb-7">Isi data di bawah ini untuk membuat akun.</p>
+
+                @if($errors->any())
+                <div class="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl flex gap-3 items-start">
+                    <span class="text-red-500 mt-0.5">⚠️</span>
+                    <div>
+                        <p class="text-red-700 text-sm font-semibold">Registrasi Gagal</p>
+                        <p class="text-red-600 text-xs mt-0.5">{{ $errors->first() }}</p>
+                    </div>
+                </div>
+                @endif
+
+                <form action="{{ route('register.submit') }}" method="POST" class="space-y-4">
+                    @csrf
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Nama Lengkap</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                            </span>
+                            <input class="input-field pl-10 @error('name') border-red-400 @enderror"
+                                type="text" name="name" value="{{ old('name') }}"
+                                placeholder="Nama lengkap kamu" required autofocus />
+                        </div>
+                        @error('name')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                            </span>
+                            <input class="input-field pl-10 @error('email') border-red-400 @enderror"
+                                type="email" name="email" value="{{ old('email') }}"
+                                placeholder="contoh@email.com" required />
+                        </div>
+                        @error('email')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                            </span>
+                            <input id="password" class="input-field pl-10 @error('password') border-red-400 @enderror"
+                                type="password" name="password"
+                                placeholder="Min. 8 karakter" required />
+                        </div>
+                        @error('password')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Konfirmasi Password</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                            </span>
+                            <input class="input-field pl-10"
+                                type="password" name="password_confirmation"
+                                placeholder="Ulangi password" required />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary w-full mt-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                        </svg>
+                        Buat Akun Sekarang
+                    </button>
+                </form>
+
+                <p class="mt-6 text-center text-sm text-gray-500">
+                    Sudah punya akun?
+                    <a href="{{ route('login') }}" class="font-semibold text-green-600 hover:text-green-700 transition">Masuk di sini</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection

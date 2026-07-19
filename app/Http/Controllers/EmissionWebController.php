@@ -15,14 +15,14 @@ class EmissionWebController extends Controller
     {
         $user = Auth::user();
 
-        // Menghitung total emisi hari ini
+        // Total emisi hari ini
         $todayEmission = ConsumptionEntry::where('user_id', $user->id)
             ->whereDate('entry_date', now())
             ->sum('emissions');
 
-        // Mengambil 5 histori terakhir
+        // 5 histori terakhir (eager load faktor + kategorinya)
         $recentEntries = ConsumptionEntry::where('user_id', $user->id)
-            ->with('emissionFactor') // Eager loading
+            ->with(['emissionFactor', 'emissionFactor.category'])
             ->latest()
             ->take(5)
             ->get();
@@ -33,43 +33,43 @@ class EmissionWebController extends Controller
     // Halaman Form Tambah Data
     public function create()
     {
-        // Kita butuh data faktor emisi untuk dropdown
         $categories = EmissionCategory::with('factors')->get();
         return view('pages.emission.create', compact('categories'));
     }
 
-    // Proses Simpan Data (Action Form)
+    // Proses Simpan Data
     public function store(Request $request)
     {
         $request->validate([
             'factor_items_id' => 'required|exists:emission_factors,id',
-            'quantity' => 'required|numeric|min:0',
-            'entry_date' => 'required|date',
+            'quantity'        => 'required|numeric|min:0.01',
+            'entry_date'      => 'required|date',
         ]);
 
-        $factor = EmissionFactor::find($request->factor_items_id);
+        $factor    = EmissionFactor::findOrFail($request->factor_items_id);
         $emissions = $request->quantity * $factor->value;
 
         ConsumptionEntry::create([
-            'user_id' => Auth::id(),
+            'user_id'         => Auth::id(),
             'factor_items_id' => $request->factor_items_id,
-            'entry_date' => $request->entry_date,
-            'emissions' => $emissions,
-            'quantity' => $request->quantity,
-            // Simpan metadata sederhana jika perlu
-            'metadata' => ['source' => 'web_input'],
+            'entry_date'      => $request->entry_date,
+            'emissions'       => $emissions,
+            'quantity'        => $request->quantity,
+            'metadata'        => ['source' => 'web_input'],
         ]);
 
-        return redirect()->route('emission.dashboard')->with('success', 'Data konsumsi berhasil dicatat!');
+        return redirect()
+            ->route('emission.dashboard')
+            ->with('success', 'Data konsumsi berhasil dicatat!');
     }
 
     // Halaman Riwayat Lengkap
     public function history()
     {
         $entries = ConsumptionEntry::where('user_id', Auth::id())
-            ->with('emissionFactor')
+            ->with(['emissionFactor', 'emissionFactor.category'])
             ->latest()
-            ->paginate(10); // Pakai pagination agar rapi
+            ->paginate(15);
 
         return view('pages.emission.history', compact('entries'));
     }

@@ -1,221 +1,237 @@
 @extends('layouts.admin')
 
+@section('title', 'Faktor Emisi')
+@section('page-title', 'Faktor Emisi')
+@section('page-subtitle', 'Kelola nilai pengali emisi karbon per kategori')
+
 @section('content')
-<div class="flex flex-wrap mt-4">
-    <div class="w-full mb-12 px-4">
-        <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white">
-            <div class="rounded-t mb-0 px-4 py-3 border-0">
-                <div class="flex flex-wrap items-center">
-                    <div class="relative w-full px-4 max-w-full flex-grow flex-1">
-                        <h3 class="font-semibold text-lg text-blueGray-700">
-                            Manajemen Faktor Emisi
-                        </h3>
-                    </div>
-                    <div class="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                        <button onclick="openModal('addModal')" 
-                                class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" 
-                                type="button">
-                            <i class="fas fa-plus"></i> Tambah Faktor Emisi
-                        </button>
-                    </div>
-                </div>
-            </div>
 
-            @if(session('success'))
-            <div class="mx-4 mb-2 bg-emerald-100 border border-emerald-400 text-emerald-700 px-4 py-3 rounded relative" role="alert">
-                <span class="block sm:inline">{{ session('success') }}</span>
-            </div>
-            @endif
+{{-- ===== Actions + Filter ===== --}}
+<div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
+    {{-- Filter Kategori --}}
+    <form method="GET" class="flex-1">
+        <div class="relative max-w-xs">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <i class="fas fa-filter text-xs"></i>
+            </span>
+            <select name="category" onchange="this.form.submit()" class="input-field pl-8 pr-4 py-2 text-sm">
+                <option value="">Semua Kategori</option>
+                @foreach($categories as $cat)
+                    <option value="{{ $cat->id }}" {{ request('category') == $cat->id ? 'selected' : '' }}>
+                        {{ $cat->category_name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+    </form>
 
-            <!-- Filter -->
-            <div class="px-4 py-2">
-                <form method="GET" class="flex gap-2">
-                    <select name="category" onchange="this.form.submit()"
-                            class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        <option value="">Semua Kategori</option>
-                        @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}" {{ request('category') == $cat->id ? 'selected' : '' }}>
-                            {{ $cat->category_name }}
-                        </option>
-                        @endforeach
-                    </select>
-                </form>
-            </div>
+    <div class="flex items-center gap-3">
+        <span class="text-sm text-gray-500">
+            <i class="fas fa-sliders-h mr-1"></i> {{ $factors->total() }} faktor
+        </span>
+        <button onclick="openModal('addModal')" class="btn-primary">
+            <i class="fas fa-plus"></i> Tambah Faktor
+        </button>
+    </div>
+</div>
 
-            <div class="block w-full overflow-x-auto">
-                <table class="items-center w-full bg-transparent border-collapse">
-                    <thead>
-                        <tr>
-                            <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                #
-                            </th>
-                            <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                Kategori
-                            </th>
-                            <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                Nama Faktor
-                            </th>
-                            <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                Nilai Faktor
-                            </th>
-                            <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                Dibuat
-                            </th>
-                            <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                Aksi
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($factors as $factor)
-                        <tr>
-                            <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                {{ $loop->iteration + ($factors->currentPage() - 1) * $factors->perPage() }}
-                            </td>
-                            <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                <span class="px-2 py-1 rounded bg-purple-100 text-purple-800">
-                                    {{ $factor->category->category_name }}
-                                </span>
-                            </td>
-                            <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                <span class="font-semibold">{{ $factor->name }}</span>
-                            </td>
-                            <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                <span class="text-emerald-600 font-semibold">{{ number_format($factor->value, 4) }}</span>
-                            </td>
-                            <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                {{ $factor->created_at->format('d M Y') }}
-                            </td>
-                            <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                <button onclick="editFactor({{ $factor->id }}, {{ $factor->factor_category_id }}, '{{ addslashes($factor->name) }}', {{ $factor->value }})" 
-                                        class="text-blue-500 hover:text-blue-700 mr-2">
-                                    <i class="fas fa-edit"></i>
+{{-- ===== Table ===== --}}
+<div class="card overflow-hidden fade-in">
+    <div class="p-5 border-b border-gray-100">
+        <h3 class="font-bold text-gray-800">Daftar Faktor Emisi</h3>
+        <p class="text-xs text-gray-400 mt-0.5">Nilai faktor = kgCO₂e per unit aktivitas</p>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Kategori</th>
+                    <th>Nama Faktor</th>
+                    <th>Nilai Faktor</th>
+                    <th>Satuan</th>
+                    <th>Dibuat</th>
+                    <th class="text-right">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $catColorMap = [
+                        'Transportasi'        => ['bg' => 'bg-blue-50',   'text' => 'text-blue-700',   'border' => 'border-blue-200'],
+                        'Energi Rumah Tangga' => ['bg' => 'bg-yellow-50', 'text' => 'text-yellow-700', 'border' => 'border-yellow-200'],
+                        'Makanan'             => ['bg' => 'bg-orange-50', 'text' => 'text-orange-700', 'border' => 'border-orange-200'],
+                        'Limbah'              => ['bg' => 'bg-gray-100',  'text' => 'text-gray-600',   'border' => 'border-gray-300'],
+                    ];
+                    $defaultColor = ['bg' => 'bg-purple-50', 'text' => 'text-purple-700', 'border' => 'border-purple-200'];
+                @endphp
+
+                @forelse($factors as $factor)
+                @php
+                    $catName = optional($factor->category)->category_name ?? '';
+                    $cc = $catColorMap[$catName] ?? $defaultColor;
+                    // Extract unit from factor name e.g. "Mobil (Bensin) (Liter)" → "Liter"
+                    preg_match('/\(([^)]+)\)\s*$/', $factor->name, $m);
+                    $unit = $m[1] ?? 'unit';
+                @endphp
+                <tr>
+                    <td class="text-gray-400 font-medium text-xs">
+                        {{ $loop->iteration + ($factors->currentPage() - 1) * $factors->perPage() }}
+                    </td>
+                    <td>
+                        <span class="inline-flex {{ $cc['bg'] }} {{ $cc['text'] }} border {{ $cc['border'] }} text-xs font-semibold px-2.5 py-1 rounded-lg">
+                            {{ $catName ?: '—' }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="font-semibold text-gray-800">{{ $factor->name }}</span>
+                    </td>
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-green-700 text-sm">{{ number_format($factor->value, 4) }}</span>
+                            <span class="text-xs text-gray-400">kgCO₂e</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="bg-slate-100 text-slate-600 text-xs font-medium px-2 py-0.5 rounded">
+                            /{{ $unit }}
+                        </span>
+                    </td>
+                    <td class="text-gray-500 text-xs">{{ $factor->created_at->format('d M Y') }}</td>
+                    <td class="text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="editFactor({{ $factor->id }}, {{ $factor->factor_category_id }}, '{{ addslashes($factor->name) }}', {{ $factor->value }})"
+                                    class="btn-edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <form action="{{ route('admin.factors.destroy', $factor->id) }}" method="POST"
+                                  onsubmit="return confirm('Yakin ingin menghapus faktor \'{{ $factor->name }}\'?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn-danger">
+                                    <i class="fas fa-trash"></i> Hapus
                                 </button>
-                                <form action="{{ route('admin.factors.destroy', $factor->id) }}" method="POST" class="inline" 
-                                      onsubmit="return confirm('Yakin ingin menghapus faktor emisi ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="6" class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                                Belum ada data faktor emisi
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="px-4 py-3">
-                {{ $factors->links() }}
-            </div>
-        </div>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="7" class="text-center py-12 text-gray-400">
+                        <i class="fas fa-sliders-h text-3xl mb-2 block opacity-30"></i>
+                        Belum ada data faktor emisi
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
+    @if($factors->hasPages())
+    <div class="px-5 py-3 border-t border-gray-100">
+        {{ $factors->links() }}
+    </div>
+    @endif
 </div>
 
-<!-- Modal Tambah Faktor Emisi -->
-<div id="addModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Tambah Faktor Emisi Baru</h3>
-            <form action="{{ route('admin.factors.store') }}" method="POST">
-                @csrf
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Kategori *</label>
-                    <select name="factor_category_id" required
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        <option value="">Pilih Kategori</option>
-                        @foreach($categories as $cat)
+
+{{-- ===== MODAL: Tambah Faktor ===== --}}
+<div id="addModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="text-lg font-bold text-gray-900">Tambah Faktor Emisi Baru</h3>
+            <button onclick="closeModal('addModal')" class="text-gray-400 hover:text-gray-600 transition">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+        <form action="{{ route('admin.factors.store') }}" method="POST" class="space-y-4">
+            @csrf
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Kategori <span class="text-red-400">*</span></label>
+                <select name="factor_category_id" required class="input-field">
+                    <option value="">-- Pilih Kategori --</option>
+                    @foreach($categories as $cat)
                         <option value="{{ $cat->id }}">{{ $cat->category_name }}</option>
-                        @endforeach
-                    </select>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nama Faktor <span class="text-red-400">*</span></label>
+                <input type="text" name="name" required class="input-field"
+                       placeholder="Contoh: Mobil (Bensin) (Liter)">
+                <p class="text-xs text-gray-400 mt-1">Format: Nama (Satuan), mis: LPG (Kg)</p>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nilai Faktor (kgCO₂e per unit) <span class="text-red-400">*</span></label>
+                <div class="relative">
+                    <input type="number" step="0.0001" min="0" name="value" required class="input-field pr-24"
+                           placeholder="Contoh: 2.31">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">kgCO₂e/unit</span>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Nama Faktor *</label>
-                    <input type="text" name="name" required
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                           placeholder="Contoh: Bensin Premium">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Nilai Faktor (kg CO2e) *</label>
-                    <input type="number" step="0.0001" name="value" required
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                           placeholder="Contoh: 2.3">
-                </div>
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="closeModal('addModal')"
-                            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                        Batal
-                    </button>
-                    <button type="submit"
-                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        Simpan
-                    </button>
-                </div>
-            </form>
-        </div>
+                <p class="text-xs text-gray-400 mt-1">Referensi: IPCC / Kementerian LHK</p>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="closeModal('addModal')"
+                        style="flex:1;padding:0.6rem;border-radius:0.5rem;border:1.5px solid #e2e8f0;font-weight:500;font-size:0.85rem;background:transparent;cursor:pointer;color:#64748b;"
+                        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+                    Batal
+                </button>
+                <button type="submit" class="btn-primary" style="flex:1;justify-content:center;">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-<!-- Modal Edit Faktor Emisi -->
-<div id="editModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Faktor Emisi</h3>
-            <form id="editForm" method="POST">
-                @csrf
-                @method('PUT')
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Kategori *</label>
-                    <select name="factor_category_id" id="edit_factor_category_id" required
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        <option value="">Pilih Kategori</option>
-                        @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}">{{ $cat->category_name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Nama Faktor *</label>
-                    <input type="text" name="name" id="edit_name" required
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Nilai Faktor (kg CO2e) *</label>
-                    <input type="number" step="0.0001" name="value" id="edit_value" required
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                </div>
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="closeModal('editModal')"
-                            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                        Batal
-                    </button>
-                    <button type="submit"
-                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        Update
-                    </button>
-                </div>
-            </form>
+{{-- ===== MODAL: Edit Faktor ===== --}}
+<div id="editModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="text-lg font-bold text-gray-900">Edit Faktor Emisi</h3>
+            <button onclick="closeModal('editModal')" class="text-gray-400 hover:text-gray-600 transition">
+                <i class="fas fa-times text-lg"></i>
+            </button>
         </div>
+        <form id="editForm" method="POST" class="space-y-4">
+            @csrf @method('PUT')
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Kategori <span class="text-red-400">*</span></label>
+                <select name="factor_category_id" id="edit_factor_category_id" required class="input-field">
+                    <option value="">-- Pilih Kategori --</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}">{{ $cat->category_name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nama Faktor <span class="text-red-400">*</span></label>
+                <input type="text" name="name" id="edit_name" required class="input-field">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nilai Faktor (kgCO₂e per unit) <span class="text-red-400">*</span></label>
+                <div class="relative">
+                    <input type="number" step="0.0001" min="0" name="value" id="edit_value" required class="input-field pr-24">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">kgCO₂e/unit</span>
+                </div>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="closeModal('editModal')"
+                        style="flex:1;padding:0.6rem;border-radius:0.5rem;border:1.5px solid #e2e8f0;font-weight:500;font-size:0.85rem;background:transparent;cursor:pointer;color:#64748b;"
+                        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+                    Batal
+                </button>
+                <button type="submit" class="btn-primary" style="flex:1;justify-content:center;">
+                    <i class="fas fa-save"></i> Simpan Perubahan
+                </button>
+            </div>
+        </form>
     </div>
 </div>
+
+@endsection
 
 @push('scripts')
 <script>
-    function openModal(modalId) {
-        document.getElementById(modalId).classList.remove('hidden');
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.add('hidden');
-    }
-
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
     function editFactor(id, categoryId, name, value) {
         document.getElementById('edit_factor_category_id').value = categoryId;
         document.getElementById('edit_name').value = name;
@@ -223,6 +239,8 @@
         document.getElementById('editForm').action = `/admin/factors/${id}`;
         openModal('editModal');
     }
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+        el.addEventListener('click', e => { if (e.target === el) el.classList.remove('active'); });
+    });
 </script>
 @endpush
-@endsection

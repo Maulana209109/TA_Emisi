@@ -1,126 +1,157 @@
 @extends('layouts.app')
 
+@section('title', 'Masuk')
+
 @section('content')
-<div class=" bg-gray-100 text-gray-900 flex justify-center items-center">
-    <div class=" grid-cols-2 m-0 sm:m-10 bg-white shadow sm:rounded-lg flex justify-center flex-1">
-        <div class="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
-            <div>
-                <img src="{{ asset('assets/emisi.pngc') }}"
-                    class="w-32 mx-auto" />
+<div class="min-h-screen flex gradient-hero">
+
+    {{-- ===== LEFT PANEL (Branding) ===== --}}
+    <div class="hidden lg:flex flex-col justify-between w-5/12 p-12 text-white">
+        {{-- Logo --}}
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>
+                </svg>
             </div>
-            <div class="mt-12 flex flex-col items-center">
-                <h1 class="text-2xl xl:text-3xl font-extrabold">
-                    Sign In
-                </h1>
-                
-                <!-- Menampilkan Error Global -->
-                @if($errors->any())
-                    <div class="w-full max-w-xs mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        <strong class="font-bold">Login Gagal!</strong>
-                        <span class="block sm:inline">{{ $errors->first() }}</span>
+            <span class="text-xl font-bold tracking-tight">Jejak Karbon</span>
+        </div>
+
+        {{-- Headline --}}
+        <div class="fade-in">
+            <h1 class="text-4xl font-extrabold leading-tight mb-5">
+                Pantau <span class="text-emerald-300">Jejak Karbonmu</span><br>Setiap Hari.
+            </h1>
+            <p class="text-white/70 text-lg leading-relaxed">
+                Lacak konsumsi energi, transportasi, dan makananmu dalam satu <br>
+                platform yang mudah digunakan.
+            </p>
+
+            {{-- Feature highlights --}}
+            <div class="mt-10 space-y-4">
+                @foreach([
+                    ['icon' => '⚡', 'text' => 'Kalkulasi otomatis berbasis standar IPCC'],
+                    ['icon' => '📊', 'text' => 'Dashboard visualisasi emisi harian'],
+                    ['icon' => '🎯', 'text' => 'Target karbon harian yang personal'],
+                ] as $feat)
+                <div class="flex items-center gap-3 text-white/80">
+                    <span class="text-xl">{{ $feat['icon'] }}</span>
+                    <span class="text-sm font-medium">{{ $feat['text'] }}</span>
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+        <p class="text-white/40 text-xs">© {{ date('Y') }} Jejak Karbon · Sistem Monitoring Emisi Karbon</p>
+    </div>
+
+    {{-- ===== RIGHT PANEL (Form) ===== --}}
+    <div class="flex-1 flex items-center justify-center p-6 bg-white/5 backdrop-blur-sm">
+        <div class="w-full max-w-md slide-up">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 border border-white/60">
+
+                {{-- Mobile Logo --}}
+                <div class="flex lg:hidden items-center gap-2 mb-6">
+                    <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>
+                        </svg>
                     </div>
+                    <span class="font-bold text-gray-800">Jejak Karbon</span>
+                </div>
+
+                <h2 class="text-2xl font-bold text-gray-900 mb-1">Selamat Datang 👋</h2>
+                <p class="text-gray-500 text-sm mb-7">Masuk untuk memantau jejak karbonmu hari ini.</p>
+
+                {{-- Flash Messages --}}
+                @if($errors->any())
+                <div class="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl flex gap-3 items-start">
+                    <span class="text-red-500 mt-0.5">⚠️</span>
+                    <div>
+                        <p class="text-red-700 text-sm font-semibold">Login Gagal</p>
+                        <p class="text-red-600 text-xs mt-0.5">{{ $errors->first() }}</p>
+                    </div>
+                </div>
                 @endif
 
                 @if(session('success'))
-                    <div class="w-full max-w-xs mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                        <span class="block sm:inline">{{ session('success') }}</span>
-                    </div>
+                <div class="mb-4 p-3.5 bg-green-50 border border-green-200 rounded-xl flex gap-3 items-start">
+                    <span class="text-green-600 mt-0.5">✅</span>
+                    <p class="text-green-700 text-sm">{{ session('success') }}</p>
+                </div>
                 @endif
 
-                <div class="w-full flex-1 mt-8">
-                    <!-- Social Login (Hanya Tampilan) -->
-                    <div class="flex flex-col items-center">
-                        <button
-                            class="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-green-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline">
-                            <div class="bg-white p-2 rounded-full">
-                                <svg class="w-4" viewBox="0 0 533.5 544.3">
-                                    <path d="M533.5 278.4c0-18.5-1.5-37.1-4.7-55.3H272.1v104.8h147c-6.1 33.8-25.7 63.7-54.4 82.7v68h87.7c51.5-47.4 81.1-117.4 81.1-200.2z" fill="#4285f4" />
-                                    <path d="M272.1 544.3c73.4 0 135.3-24.1 180.4-65.7l-87.7-68c-24.4 16.6-55.9 26-92.6 26-71 0-131.2-47.9-152.8-112.3H28.9v70.1c46.2 91.9 140.3 149.9 243.2 149.9z" fill="#34a853" />
-                                    <path d="M119.3 324.3c-11.4-33.8-11.4-70.4 0-104.2V150H28.9c-38.6 76.9-38.6 167.5 0 244.4l90.4-70.1z" fill="#fbbc04" />
-                                    <path d="M272.1 107.7c38.8-.6 76.3 14 104.4 40.8l77.7-77.7C405 24.6 339.7-.8 272.1 0 169.2 0 75.1 58 28.9 150l90.4 70.1c21.5-64.5 81.8-112.4 152.8-112.4z" fill="#ea4335" />
+                {{-- Login Form --}}
+                <form action="{{ route('login.submit') }}" method="POST" class="space-y-4">
+                    @csrf
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                <svg class="w-4.5 h-4.5 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                 </svg>
-                            </div>
-                            <span class="ml-4">
-                                Sign In with Google
                             </span>
-                        </button>
-                    </div>
-
-                    <div class="my-12 border-b text-center">
-                        <div class="leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform translate-y-1/2">
-                            Or sign In with E-mail
+                            <input id="email" class="input-field pl-10 @error('email') border-red-400 @enderror"
+                                type="email" name="email" value="{{ old('email') }}"
+                                placeholder="contoh@email.com" required autocomplete="email" />
                         </div>
+                        @error('email')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                    <!-- Form Login Laravel -->
-                    <form action="{{ route('login.submit') }}" method="POST" class="mx-auto max-w-xs">
-                        @csrf
-                        
-                        <!-- Input Email -->
-                        <input
-                            class="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border @error('email') border-red-500 @else border-gray-200 @enderror placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
-                            type="email" 
-                            name="email"
-                            value="{{ old('email') }}"
-                            placeholder="Email" 
-                            required />
-                        @error('email')
-                            <p class="text-red-500 text-xs mt-1 ml-1">{{ $message }}</p>
-                        @enderror
-
-                        <!-- Input Password -->
-                        <input
-                            class="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border @error('password') border-red-500 @else border-gray-200 @enderror placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
-                            type="password" 
-                            name="password"
-                            placeholder="Password" 
-                            required />
-                        @error('password')
-                            <p class="text-red-500 text-xs mt-1 ml-1">{{ $message }}</p>
-                        @enderror
-
-                        <!-- Tombol Submit -->
-                        <button type="submit"
-                            class="mt-5 tracking-wide font-semibold bg-green-400 text-white w-full py-4 rounded-lg hover:bg-green-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none">
-                            <svg class="w-6 h-6 -ml-2" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                                <circle cx="8.5" cy="7" r="4" />
-                                <path d="M20 8v6M23 11h-6" />
-                            </svg>
-                            <span class="ml-2">
-                                Sign In
+                    <div>
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label for="password" class="text-sm font-medium text-gray-700">Password</label>
+                        </div>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
                             </span>
-                        </button>
-                        
-                        <!-- Link ke Register -->
-                        <p class="mt-6 text-sm text-gray-600 text-center">
-                            Don't have an account?
-                            <a href="{{ route('register') }}" class="border-b border-gray-500 border-dotted font-bold text-green-600">
-                                Register Here
-                            </a>
-                        </p>
+                            <input id="password" class="input-field pl-10 pr-12 @error('password') border-red-400 @enderror"
+                                type="password" name="password" placeholder="••••••••" required />
+                            <button type="button" id="togglePass" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition">
+                                <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        @error('password')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                        <p class="mt-6 text-xs text-gray-600 text-center">
-                            I agree to abide by Cartesian Kinetics
-                            <a href="#" class="border-b border-gray-500 border-dotted">
-                                Terms of Service
-                            </a>
-                            and its
-                            <a href="#" class="border-b border-gray-500 border-dotted">
-                                Privacy Policy
-                            </a>
-                        </p>
-                    </form>
-                </div>
+                    <button type="submit" class="btn-primary w-full mt-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                        </svg>
+                        Masuk ke Dashboard
+                    </button>
+                </form>
+
+                <p class="mt-6 text-center text-sm text-gray-500">
+                    Belum punya akun?
+                    <a href="{{ route('register') }}" class="font-semibold text-green-600 hover:text-green-700 transition">Daftar di sini</a>
+                </p>
             </div>
         </div>
-
-         <div class="flex items-center justify-center sm:hidden md:flex lg:flex xl:flex 2xl:flex  hidden lg:flex">
-
-            <img src="{{ asset('assets/emisi.png') }}" alt="" class="w-3xl h-auto ">
-        </div>
-        
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    const toggleBtn = document.getElementById('togglePass');
+    const passInput = document.getElementById('password');
+    toggleBtn.addEventListener('click', () => {
+        const isPass = passInput.type === 'password';
+        passInput.type = isPass ? 'text' : 'password';
+        toggleBtn.querySelector('svg').style.opacity = isPass ? '0.5' : '1';
+    });
+</script>
+@endpush

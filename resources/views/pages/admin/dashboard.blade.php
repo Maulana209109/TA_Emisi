@@ -1,401 +1,213 @@
 @extends('layouts.admin')
 
+@section('title', 'Dashboard Admin')
+@section('page-title', 'Dashboard')
+@section('page-subtitle', 'Ringkasan data dan aktivitas sistem')
+
 @section('content')
-<!-- Header Stats -->
-<div class="relative bg-pink-600 md:pt- pb-32 pt-12">
-    <div class="px-4 md:px-10 mx-auto w-full">
-        <div>
-            <!-- Card stats -->
-            <div class="flex flex-wrap">
-                <!-- Card 1: Total Entries -->
-                <div class="w-full lg:w-6/12 xl:w-3/12 px-4">
-                    <div class="relative flex flex-col min-w-0 break-words bg-white rounded mb-6 xl:mb-0 shadow-lg">
-                        <div class="flex-auto p-4">
-                            <div class="flex flex-wrap">
-                                <div class="relative w-full pr-4 max-w-full flex-grow flex-1">
-                                    <h5 class="text-blueGray-400 uppercase font-bold text-xs">
-                                        Total Konsumsi
-                                    </h5>
-                                    <span class="font-semibold text-xl text-blueGray-700">
-                                        {{ number_format($totalEntries) }}
-                                    </span>
-                                </div>
-                                <div class="relative w-auto pl-4 flex-initial">
-                                    <div class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 shadow-lg rounded-full bg-red-500">
-                                        <i class="far fa-chart-bar"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="text-sm text-blueGray-400 mt-4">
-                                <span class="whitespace-nowrap">Total input user</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Card 2: Total Users -->
-                <div class="w-full lg:w-6/12 xl:w-3/12 px-4">
-                    <div class="relative flex flex-col min-w-0 break-words bg-white rounded mb-6 xl:mb-0 shadow-lg">
-                        <div class="flex-auto p-4">
-                            <div class="flex flex-wrap">
-                                <div class="relative w-full pr-4 max-w-full flex-grow flex-1">
-                                    <h5 class="text-blueGray-400 uppercase font-bold text-xs">
-                                        Total Users
-                                    </h5>
-                                    <span class="font-semibold text-xl text-blueGray-700">
-                                        {{ number_format($totalUsers) }}
-                                    </span>
-                                </div>
-                                <div class="relative w-auto pl-4 flex-initial">
-                                    <div class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 shadow-lg rounded-full bg-orange-500">
-                                        <i class="fas fa-users"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="text-sm text-blueGray-400 mt-4">
-                                <span class="text-emerald-500 mr-2">
-                                    +{{ $newUsersThisMonth }}
-                                </span>
-                                <span class="whitespace-nowrap">Bulan ini</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+{{-- ===== STAT CARDS ===== --}}
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
 
-                <!-- Card 3: Total Factors -->
-                <div class="w-full lg:w-6/12 xl:w-3/12 px-4">
-                    <div class="relative flex flex-col min-w-0 break-words bg-white rounded mb-6 xl:mb-0 shadow-lg">
-                        <div class="flex-auto p-4">
-                            <div class="flex flex-wrap">
-                                <div class="relative w-full pr-4 max-w-full flex-grow flex-1">
-                                    <h5 class="text-blueGray-400 uppercase font-bold text-xs">
-                                        Faktor Emisi
-                                    </h5>
-                                    <span class="font-semibold text-xl text-blueGray-700">
-                                        {{ number_format($totalFactors) }}
-                                    </span>
-                                </div>
-                                <div class="relative w-auto pl-4 flex-initial">
-                                    <div class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 shadow-lg rounded-full bg-pink-500">
-                                        <i class="fas fa-leaf"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="text-sm text-blueGray-400 mt-4">
-                                <span class="whitespace-nowrap">Total tersedia</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+    @php
+        $stats = [
+            ['label' => 'Total Konsumsi', 'value' => number_format($totalEntries), 'sub' => 'Total input user', 'icon' => 'fa-chart-bar', 'color' => '#16a34a', 'bg' => '#f0fdf4'],
+            ['label' => 'Total Pengguna', 'value' => number_format($totalUsers), 'sub' => '+' . $newUsersThisMonth . ' bulan ini', 'icon' => 'fa-users', 'color' => '#2563eb', 'bg' => '#eff6ff'],
+            ['label' => 'Faktor Emisi', 'value' => number_format($totalFactors), 'sub' => 'Faktor tersedia', 'icon' => 'fa-sliders-h', 'color' => '#d97706', 'bg' => '#fffbeb'],
+            ['label' => 'Kategori', 'value' => number_format($totalCategories), 'sub' => 'Total kategori', 'icon' => 'fa-layer-group', 'color' => '#7c3aed', 'bg' => '#f5f3ff'],
+        ];
+    @endphp
 
-                <!-- Card 4: Total Categories -->
-                <div class="w-full lg:w-6/12 xl:w-3/12 px-4">
-                    <div class="relative flex flex-col min-w-0 break-words bg-white rounded mb-6 xl:mb-0 shadow-lg">
-                        <div class="flex-auto p-4">
-                            <div class="flex flex-wrap">
-                                <div class="relative w-full pr-4 max-w-full flex-grow flex-1">
-                                    <h5 class="text-blueGray-400 uppercase font-bold text-xs">
-                                        Kategori
-                                    </h5>
-                                    <span class="font-semibold text-xl text-blueGray-700">
-                                        {{ number_format($totalCategories) }}
-                                    </span>
-                                </div>
-                                <div class="relative w-auto pl-4 flex-initial">
-                                    <div class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 shadow-lg rounded-full bg-lightBlue-500">
-                                        <i class="fas fa-layer-group"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="text-sm text-blueGray-400 mt-4">
-                                <span class="whitespace-nowrap">Total kategori</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+    @foreach($stats as $i => $s)
+    <div class="card p-5 fade-in" style="animation-delay: {{ $i * 0.08 }}s">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{{ $s['label'] }}</p>
+                <p class="text-3xl font-extrabold text-gray-800">{{ $s['value'] }}</p>
+                <p class="text-xs text-gray-400 mt-1">{{ $s['sub'] }}</p>
             </div>
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background: {{ $s['bg'] }}">
+                <i class="fas {{ $s['icon'] }} text-lg" style="color: {{ $s['color'] }}"></i>
+            </div>
+        </div>
+    </div>
+    @endforeach
+</div>
+
+{{-- ===== CHARTS ROW ===== --}}
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
+
+    {{-- Line Chart --}}
+    <div class="card p-5 xl:col-span-2 fade-in" style="animation-delay: 0.32s">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="font-bold text-gray-800">Input Konsumsi per Bulan</h3>
+                <p class="text-xs text-gray-400 mt-0.5">Tren aktivitas tahun {{ date('Y') }}</p>
+            </div>
+            <span class="text-xs bg-green-50 text-green-700 font-semibold px-2.5 py-1 rounded-lg">
+                {{ date('Y') }}
+            </span>
+        </div>
+        <div style="height: 260px; position: relative;">
+            <canvas id="line-chart"></canvas>
+        </div>
+    </div>
+
+    {{-- Bar Chart --}}
+    <div class="card p-5 fade-in" style="animation-delay: 0.4s">
+        <div class="mb-4">
+            <h3 class="font-bold text-gray-800">Registrasi User Baru</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Pertumbuhan tahun {{ date('Y') }}</p>
+        </div>
+        <div style="height: 260px; position: relative;">
+            <canvas id="bar-chart"></canvas>
         </div>
     </div>
 </div>
 
-<!-- Content -->
-<div class="px-4 md:px-10 mx-auto w-full -m-24">
-    <div class="flex flex-wrap">
-        <!-- Line Chart -->
-        <div class="w-full xl:w-8/12 mb-12 xl:mb-0 px-4 ">
-            <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-blueGray-700">
-                <div class="rounded-t mb-0 px-4 py-3 bg-white">
-                    <div class="flex flex-wrap items-center ">
-                        <div class="relative w-full max-w-full flex-grow flex-1">
-                            <h6 class="uppercase text-black mb-1 text-xs font-semibold">
-                                Tren Tahun Ini
-                            </h6>
-                            <h2 class="text-black text-xl font-semibold">
-                                Input Konsumsi per Bulan
-                            </h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="p-4 flex-auto bg-white">
-                    <div class="relative h-350-px">
-                        <canvas id="line-chart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
+{{-- ===== TABLES ROW ===== --}}
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
 
-        <!-- Bar Chart -->
-        <div class="w-full xl:w-4/12 px-4">
-            <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
-                <div class="rounded-t mb-0 px-4 py-3 bg-transparent">
-                    <div class="flex flex-wrap items-center">
-                        <div class="relative w-full max-w-full flex-grow flex-1">
-                            <h6 class="uppercase text-blueGray-400 mb-1 text-xs font-semibold">
-                                Pertumbuhan
-                            </h6>
-                            <h2 class="text-blueGray-700 text-xl font-semibold">
-                                Registrasi User Baru
-                            </h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="p-4 flex-auto">
-                    <div class="relative h-350-px">
-                        <canvas id="bar-chart"></canvas>
-                    </div>
-                </div>
+    {{-- Top Users --}}
+    <div class="card overflow-hidden xl:col-span-2 fade-in" style="animation-delay: 0.48s">
+        <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+            <div>
+                <h3 class="font-bold text-gray-800">Top 5 Pengguna Aktif</h3>
+                <p class="text-xs text-gray-400 mt-0.5">Berdasarkan jumlah input terbanyak</p>
             </div>
+            <a href="{{ route('admin.users.index') }}" class="text-xs text-green-600 font-semibold hover:text-green-700">Lihat Semua →</a>
         </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Pengguna</th>
+                    <th>Email</th>
+                    <th class="text-right">Total Input</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($topUsers as $i => $user)
+                <tr>
+                    <td class="text-gray-400 font-bold">{{ $i + 1 }}</td>
+                    <td>
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                                <span class="text-xs font-bold text-green-700">{{ strtoupper(substr($user->name,0,1)) }}</span>
+                            </div>
+                            <span class="font-semibold text-gray-800">{{ $user->name }}</span>
+                        </div>
+                    </td>
+                    <td class="text-gray-500">{{ $user->email }}</td>
+                    <td class="text-right">
+                        <span class="bg-green-50 text-green-700 font-bold text-xs px-2.5 py-1 rounded-lg">
+                            {{ $user->consumption_entries_count }}
+                        </span>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="4" class="text-center text-gray-400 py-8">Belum ada data</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 
-    <!-- Tables -->
-    <div class="flex flex-wrap mt-4">
-        <!-- Top Users Table -->
-        <div class="w-full xl:w-8/12 mb-12 xl:mb-0 px-4">
-            <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
-                <div class="rounded-t mb-0 px-4 py-3 border-0">
-                    <div class="flex flex-wrap items-center">
-                        <div class="relative w-full px-4 max-w-full flex-grow flex-1">
-                            <h3 class="font-semibold text-base text-blueGray-700">
-                                Top 5 User Paling Aktif
-                            </h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="block w-full overflow-x-auto">
-                    <table class="items-center w-full bg-transparent border-collapse">
-                        <thead>
-                            <tr>
-                                <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                    Nama User
-                                </th>
-                                <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                    Email
-                                </th>
-                                <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                    Total Input
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($topUsers as $user)
-                            <tr>
-                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                    {{ $user->name }}
-                                </td>
-                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                    {{ $user->email }}
-                                </td>
-                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                    <i class="fas fa-arrow-up text-emerald-500 mr-2"></i>
-                                    {{ $user->consumption_entries_count }} entries
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="3" class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                                    Belum ada data
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    {{-- Category Stats --}}
+    <div class="card overflow-hidden fade-in" style="animation-delay: 0.56s">
+        <div class="p-5 border-b border-gray-100">
+            <h3 class="font-bold text-gray-800">Sebaran Kategori</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Jumlah faktor per kategori</p>
         </div>
-
-        <!-- Categories Stats Table -->
-        <div class="w-full xl:w-4/12 px-4">
-            <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
-                <div class="rounded-t mb-0 px-4 py-3 border-0">
-                    <div class="flex flex-wrap items-center">
-                        <div class="relative w-full px-4 max-w-full flex-grow flex-1">
-                            <h3 class="font-semibold text-base text-blueGray-700">
-                                Sebaran Kategori Emisi
-                            </h3>
-                        </div>
+        <div class="p-5 space-y-4">
+            @php
+                $catColors = ['#16a34a','#2563eb','#d97706','#7c3aed','#dc2626'];
+                $maxCount = $categoriesStats->max('factors_count') ?: 1;
+            @endphp
+            @forelse($categoriesStats as $idx => $cat)
+            <div>
+                <div class="flex justify-between items-center mb-1.5">
+                    <p class="text-sm font-medium text-gray-700">{{ $cat->category_name }}</p>
+                    <span class="text-xs font-bold text-gray-500">{{ $cat->factors_count }} faktor</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2">
+                    <div class="h-2 rounded-full transition-all duration-700"
+                         style="width: {{ min(($cat->factors_count / $maxCount)*100, 100) }}%; background: {{ $catColors[$idx % 5] }}">
                     </div>
                 </div>
-                <div class="block w-full overflow-x-auto">
-                    <table class="items-center w-full bg-transparent border-collapse">
-                        <thead>
-                            <tr>
-                                <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                    Kategori
-                                </th>
-                                <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                    Jumlah Faktor
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                $colors = ['red', 'emerald', 'purple', 'lightBlue', 'orange'];
-                            @endphp
-                            @forelse($categoriesStats as $index => $category)
-                            <tr>
-                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                    {{ $category->category_name }}
-                                </td>
-                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                    <div class="flex items-center">
-                                        <span class="mr-2">{{ $category->factors_count }}</span>
-                                        <div class="relative w-full">
-                                            <div class="overflow-hidden h-2 text-xs flex rounded bg-{{ $colors[$index % 5] }}-200">
-                                                <div style="width: {{ min(($category->factors_count / max($categoriesStats->max('factors_count'), 1)) * 100, 100) }}%" 
-                                                     class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-{{ $colors[$index % 5] }}-500">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="2" class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center">
-                                    Belum ada data
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
             </div>
+            @empty
+            <p class="text-gray-400 text-sm text-center py-4">Belum ada data kategori</p>
+            @endforelse
         </div>
     </div>
 </div>
+
+@endsection
 
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
-
 <script>
-    Chart.defaults.global.defaultFontColor = "#e5e7eb";
-    Chart.defaults.global.defaultFontFamily = "Arial, sans-serif";
+    Chart.defaults.global.defaultFontFamily = 'Inter, sans-serif';
+    Chart.defaults.global.defaultFontColor  = '#64748b';
 
-    // Line Chart - Input Konsumsi per Bulan
-    var entriesData = @json($entriesData);
-
-    var lineConfig = {
-        type: "line",
+    // ─── Line Chart ───
+    new Chart(document.getElementById('line-chart').getContext('2d'), {
+        type: 'line',
         data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Oct", "Nov", "Des"],
+            labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
             datasets: [{
-                label: new Date().getFullYear(),
-                backgroundColor: "rgba(99, 102, 241, 0.2)",
-                borderColor: "#6366f1",
-                pointBackgroundColor: "#6366f1",
-                pointBorderColor: "#111827",
-                data: entriesData,
+                label: 'Input Konsumsi',
+                data: @json($entriesData),
+                backgroundColor: 'rgba(22,163,74,0.1)',
+                borderColor: '#16a34a',
+                borderWidth: 2.5,
+                pointBackgroundColor: '#16a34a',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
                 fill: true,
-            }],
+                tension: 0.4,
+            }]
         },
         options: {
             maintainAspectRatio: false,
             responsive: true,
-            legend: {
-                position: "bottom",
-                labels: {
-                    fontColor: "#e5e7eb",
-                },
-            },
+            legend: { display: false },
             scales: {
-                xAxes: [{
-                    ticks: {
-                        fontColor: "#9ca3af",
-                    },
-                    gridLines: {
-                        color: "rgba(255,255,255,0.05)",
-                        drawBorder: false,
-                    },
-                }],
-                yAxes: [{
-                    ticks: {
-                        fontColor: "#9ca3af",
-                    },
-                    gridLines: {
-                        color: "rgba(255,255,255,0.08)",
-                        borderDash: [4],
-                        drawBorder: false,
-                    },
-                }],
+                xAxes: [{ gridLines: { display: false }, ticks: { fontColor: '#94a3b8', fontSize: 11 } }],
+                yAxes: [{ gridLines: { color: '#f1f5f9', drawBorder: false }, ticks: { fontColor: '#94a3b8', fontSize: 11, beginAtZero: true } }]
             },
-        },
-    };
+            tooltips: { backgroundColor: '#1e293b', titleFontColor: '#fff', bodyFontColor: '#cbd5e1', cornerRadius: 8 }
+        }
+    });
 
-    var lineCtx = document.getElementById("line-chart").getContext("2d");
-    new Chart(lineCtx, lineConfig);
-
-
-    // Bar Chart - Registrasi User Baru
-    var usersData = @json($usersData);
-
-    var barConfig = {
-        type: "bar",
+    // ─── Bar Chart ───
+    new Chart(document.getElementById('bar-chart').getContext('2d'), {
+        type: 'bar',
         data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Oct", "Nov", "Des"],
+            labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
             datasets: [{
-                label: new Date().getFullYear(),
-                backgroundColor: "#ec4899",
-                borderColor: "#ec4899",
-                data: usersData,
-                barThickness: 10,
-            }],
+                label: 'User Baru',
+                data: @json($usersData),
+                backgroundColor: 'rgba(37,99,235,0.15)',
+                borderColor: '#2563eb',
+                borderWidth: 2,
+                borderRadius: 6,
+                barThickness: 14,
+            }]
         },
         options: {
             maintainAspectRatio: false,
             responsive: true,
-            legend: {
-                position: "bottom",
-                labels: {
-                    fontColor: "#e5e7eb",
-                },
-            },
+            legend: { display: false },
             scales: {
-                xAxes: [{
-                    ticks: {
-                        fontColor: "#9ca3af",
-                    },
-                    gridLines: {
-                        display: false,
-                    },
-                }],
-                yAxes: [{
-                    ticks: {
-                        fontColor: "#9ca3af",
-                    },
-                    gridLines: {
-                        color: "rgba(255,255,255,0.08)",
-                        borderDash: [4],
-                        drawBorder: false,
-                    },
-                }],
+                xAxes: [{ gridLines: { display: false }, ticks: { fontColor: '#94a3b8', fontSize: 11 } }],
+                yAxes: [{ gridLines: { color: '#f1f5f9', drawBorder: false }, ticks: { fontColor: '#94a3b8', fontSize: 11, beginAtZero: true } }]
             },
-        },
-    };
-
-    var barCtx = document.getElementById("bar-chart").getContext("2d");
-    new Chart(barCtx, barConfig);
+            tooltips: { backgroundColor: '#1e293b', titleFontColor: '#fff', bodyFontColor: '#cbd5e1', cornerRadius: 8 }
+        }
+    });
 </script>
-
 @endpush
-@endsection
