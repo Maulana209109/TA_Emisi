@@ -27,7 +27,19 @@ class EmissionWebController extends Controller
             ->take(5)
             ->get();
 
-        return view('pages.emission.dashboard', compact('user', 'todayEmission', 'recentEntries'));
+        // Data Grafik Konsumsi 7 Hari Terakhir
+        $chartLabels = [];
+        $chartData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = \Carbon\Carbon::today()->subDays($i)->format('Y-m-d');
+            $chartLabels[] = \Carbon\Carbon::parse($date)->translatedFormat('d M');
+            $total = ConsumptionEntry::where('user_id', $user->id)
+                ->whereDate('entry_date', $date)
+                ->sum('emissions');
+            $chartData[] = round($total, 2);
+        }
+
+        return view('pages.emission.dashboard', compact('user', 'todayEmission', 'recentEntries', 'chartLabels', 'chartData'));
     }
 
     // Halaman Form Tambah Data

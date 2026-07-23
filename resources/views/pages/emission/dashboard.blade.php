@@ -125,6 +125,19 @@
         </div>
     </div>
 
+    {{-- ===== Grafik Konsumsi Harian ===== --}}
+    <div class="max-w-5xl mx-auto px-6 mt-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 fade-in" style="animation-delay:0.25s">
+            <div class="mb-4">
+                <h2 class="font-bold text-gray-800">Grafik Konsumsi Harian</h2>
+                <p class="text-xs text-gray-400 mt-0.5">Tren emisi 7 hari terakhir</p>
+            </div>
+            <div style="height: 250px; position: relative;">
+                <canvas id="daily-chart"></canvas>
+            </div>
+        </div>
+    </div>
+
     {{-- ===== Recent Activity ===== --}}
     <div class="max-w-5xl mx-auto px-6 mt-6">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden fade-in" style="animation-delay:0.3s">
@@ -188,3 +201,43 @@
 
 </main>
 @endsection
+
+@push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+<script>
+    if(document.getElementById('daily-chart')) {
+        Chart.defaults.global.defaultFontFamily = 'Inter, sans-serif';
+        Chart.defaults.global.defaultFontColor  = '#94a3b8';
+
+        new Chart(document.getElementById('daily-chart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: @json($chartLabels ?? []),
+                datasets: [{
+                    label: 'Emisi Harian (kgCO₂)',
+                    data: @json($chartData ?? []),
+                    backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                    borderColor: '#16a34a',
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#16a34a',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    fill: true,
+                    tension: 0.4,
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                legend: { display: false },
+                scales: {
+                    xAxes: [{ gridLines: { display: false }, ticks: { fontColor: '#94a3b8', fontSize: 11 } }],
+                    yAxes: [{ gridLines: { color: '#f1f5f9', drawBorder: false }, ticks: { fontColor: '#94a3b8', fontSize: 11, beginAtZero: true } }]
+                },
+                tooltips: { backgroundColor: '#1e293b', titleFontColor: '#fff', bodyFontColor: '#cbd5e1', cornerRadius: 8 }
+            }
+        });
+    }
+</script>
+@endpush
