@@ -240,5 +240,55 @@
     </div>
 
     @stack('scripts')
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Find all forms that have a confirm onsubmit
+            const deleteForms = document.querySelectorAll('form[onsubmit*="return confirm"]');
+            
+            deleteForms.forEach(form => {
+                // Extract the confirm message
+                const onsubmitAttr = form.getAttribute('onsubmit');
+                let message = 'Yakin ingin menghapus data ini?';
+                
+                // Regex to get the string inside confirm('...')
+                // This handles escaped quotes by matching everything inside the outer quotes
+                const match = onsubmitAttr.match(/confirm\(\s*'((?:\\'|[^'])*)'\s*\)/);
+                if (match) {
+                    message = match[1].replace(/\\'/g, "'"); // Unescape single quotes
+                }
+                
+                // Remove the native onsubmit
+                form.removeAttribute('onsubmit');
+                
+                // Add SweetAlert logic
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Konfirmasi Hapus',
+                        text: message,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#94a3b8',
+                        confirmButtonText: '<i class="fas fa-trash mr-1"></i> Ya, Hapus!',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true,
+                        customClass: {
+                            popup: 'rounded-2xl',
+                            confirmButton: 'rounded-lg px-4 py-2 font-semibold text-sm',
+                            cancelButton: 'rounded-lg px-4 py-2 font-semibold text-sm mr-3'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>
