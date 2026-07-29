@@ -6,71 +6,28 @@ use App\Models\User;
 use App\Models\EmissionCategory;
 use App\Models\EmissionFactor;
 use App\Models\ConsumptionEntry;
+use App\Services\KpiDashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
+    public function __construct(private KpiDashboardService $kpiDashboard) {}
+
     /**
      * TAMPILAN DASHBOARD UTAMA
-     * Mengambil data untuk Statistik, Grafik, dan Tabel
+     * Mengambil data KPI Balanced Scorecard, grafik, dan tabel detail.
      */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
-        // --- 1. DATA KARTU STATISTIK (STATS CARDS) ---
+        $data = $this->kpiDashboard->build(
+            $request->query('from'),
+            $request->query('to'),
+            $request->query('perspective')
+        );
 
-        // Kartu 1: Traffic (Total Konsumsi Emisi User)
-        $totalEntries = ConsumptionEntry::count();
-
-        // Kartu 2: New Users (Total User terdaftar)
-        $totalUsers = User::count();
-        $newUsersThisMonth = User::whereMonth('created_at', date('m'))
-            ->whereYear('created_at', date('Y'))
-            ->count();
-
-        // Kartu 3: Sales (Total Faktor Emisi yang tersedia)
-        $totalFactors = EmissionFactor::count();
-
-        // Kartu 4: Performance (Total Kategori)
-        $totalCategories = EmissionCategory::count();
-
-
-        // --- 2. DATA GRAFIK (CHARTS) ---
-
-        // Grafik 1: Line Chart (Tren Input User per Bulan Tahun Ini)
-        $entriesData = $this->getMonthlyData(ConsumptionEntry::class);
-
-        // Grafik 2: Bar Chart (Registrasi User Baru per Bulan Tahun Ini)
-        $usersData = $this->getMonthlyData(User::class);
-
-
-        // --- 3. DATA TABEL (TABLES) ---
-
-        // Tabel 1: Top 5 User Paling Aktif Menginput
-        $topUsers = User::withCount('consumptionEntries')
-            ->orderBy('consumption_entries_count', 'desc')
-            ->take(5)
-            ->get();
-
-        // Tabel 2: Sebaran Kategori Emisi
-        $categoriesStats = EmissionCategory::withCount('factors')
-            ->orderBy('factors_count', 'desc')
-            ->take(5)
-            ->get();
-
-        // Kirim semua data ke view
-        return view('pages.admin.dashboard', compact(
-            'totalEntries',
-            'totalUsers',
-            'newUsersThisMonth',
-            'totalFactors',
-            'totalCategories',
-            'entriesData',
-            'usersData',
-            'topUsers',
-            'categoriesStats'
-        ));
+        return view('pages.admin.dashboard', compact('data'));
     }
 
     /**

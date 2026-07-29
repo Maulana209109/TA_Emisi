@@ -138,6 +138,7 @@
         .modal-overlay.active { display: flex; }
         .modal-box { background: white; border-radius: 1.25rem; padding: 2rem; width: 100%; max-width: 460px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); margin: 1rem; }
     </style>
+    @stack('styles')
 </head>
 <body>
 

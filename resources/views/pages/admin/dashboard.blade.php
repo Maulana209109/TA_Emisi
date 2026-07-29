@@ -1,213 +1,27 @@
-@extends('layouts.admin')
-
-@section('title', 'Dashboard Admin')
-@section('page-title', 'Dashboard')
-@section('page-subtitle', 'Ringkasan data dan aktivitas sistem')
-
+﻿@extends('layouts.admin')
+@section('title', 'Dashboard KPI')
+@section('page-title', 'Dashboard KPI')
+@section('page-subtitle', 'Balanced Scorecard · Ringkasan performa emisi')
 @section('content')
-
-{{-- ===== STAT CARDS ===== --}}
-<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-
-    @php
-        $stats = [
-            ['label' => 'Total Konsumsi', 'value' => number_format($totalEntries), 'sub' => 'Total input user', 'icon' => 'fa-chart-bar', 'color' => '#16a34a', 'bg' => '#f0fdf4'],
-            ['label' => 'Total Pengguna', 'value' => number_format($totalUsers), 'sub' => '+' . $newUsersThisMonth . ' bulan ini', 'icon' => 'fa-users', 'color' => '#2563eb', 'bg' => '#eff6ff'],
-            ['label' => 'Faktor Emisi', 'value' => number_format($totalFactors), 'sub' => 'Faktor tersedia', 'icon' => 'fa-sliders-h', 'color' => '#d97706', 'bg' => '#fffbeb'],
-            ['label' => 'Kategori', 'value' => number_format($totalCategories), 'sub' => 'Total kategori', 'icon' => 'fa-layer-group', 'color' => '#7c3aed', 'bg' => '#f5f3ff'],
-        ];
-    @endphp
-
-    @foreach($stats as $i => $s)
-    <div class="card p-5 fade-in" style="animation-delay: {{ $i * 0.08 }}s">
-        <div class="flex items-start justify-between">
-            <div>
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{{ $s['label'] }}</p>
-                <p class="text-3xl font-extrabold text-gray-800">{{ $s['value'] }}</p>
-                <p class="text-xs text-gray-400 mt-1">{{ $s['sub'] }}</p>
-            </div>
-            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background: {{ $s['bg'] }}">
-                <i class="fas {{ $s['icon'] }} text-lg" style="color: {{ $s['color'] }}"></i>
-            </div>
-        </div>
-    </div>
-    @endforeach
+@php
+$summary = $data['summary'];
+$names = ['financial'=>'Financial','customer'=>'Customer / Stakeholder','internal'=>'Internal Process','learning'=>'Learning & Growth'];
+$colors = ['financial'=>'#0f766e','customer'=>'#2563eb','internal'=>'#d97706','learning'=>'#7c3aed'];
+@endphp
+<div class="kpi-hero"><div><span class="eyebrow">PERFORMANCE INTELLIGENCE</span><h1>Kontrol jejak karbon<br><em>berbasis data.</em></h1><p>Pantau performa organisasi dari empat perspektif Balanced Scorecard.</p></div><div class="hero-orbit"><i class="fas fa-leaf"></i></div></div>
+<form method="GET" action="{{ route('admin.dashboard') }}" class="filter-panel" id="kpi-filter-form"><div class="filter-heading"><i class="fas fa-sliders"></i><strong>Filter dashboard</strong></div><label>Mulai<input type="date" name="from" value="{{ $data['filters']['from'] }}"></label><label>Sampai<input type="date" name="to" value="{{ $data['filters']['to'] }}"></label><label>Perspektif<select name="perspective"><option value="all">Semua perspektif</option>@foreach($names as $key=>$name)<option value="{{ $key }}" @selected($data['filters']['perspective']===$key)>{{ $name }}</option>@endforeach</select></label><button class="action primary" type="submit"><i class="fas fa-check"></i> Terapkan</button><button class="action ghost" type="button" id="refresh-kpi"><i class="fas fa-sync-alt"></i> Refresh</button></form>
+<div class="toolbar"><span><i class="fas fa-clock"></i> Diperbarui {{ now()->format('d M Y, H:i') }} WIB</span><span><a href="{{ route('admin.dashboard.report', request()->query()) }}" target="_blank">PDF</a><a class="excel" href="{{ route('admin.dashboard.export', request()->query()) }}">Excel</a></span></div>
+<div class="metric-grid">
+@foreach([['Total emisi',number_format($summary['total_emission'],2),'kgCO₂e pada periode terpilih','cloud','green'],['Total pencatatan',number_format($summary['total_entries']),'Aktivitas terdokumentasi','fingerprint','blue'],['Pengguna aktif',number_format($summary['active_users']),'Kontributor dalam periode','users','purple'],['Pencapaian target',$summary['achievement'].'%','Progress terhadap baseline','bullseye','orange']] as $metric)<article class="metric {{ $metric[4] }}"><div><span>{{ $metric[0] }}</span><i class="fas fa-{{ $metric[3] }}"></i></div><strong>{{ $metric[1] }}</strong><small>{{ $metric[2] }}</small></article>@endforeach
 </div>
-
-{{-- ===== CHARTS ROW ===== --}}
-<div class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
-
-    {{-- Line Chart --}}
-    <div class="card p-5 xl:col-span-2 fade-in" style="animation-delay: 0.32s">
-        <div class="flex items-center justify-between mb-4">
-            <div>
-                <h3 class="font-bold text-gray-800">Input Konsumsi per Bulan</h3>
-                <p class="text-xs text-gray-400 mt-0.5">Tren aktivitas tahun {{ date('Y') }}</p>
-            </div>
-            <span class="text-xs bg-green-50 text-green-700 font-semibold px-2.5 py-1 rounded-lg">
-                {{ date('Y') }}
-            </span>
-        </div>
-        <div style="height: 260px; position: relative;">
-            <canvas id="line-chart"></canvas>
-        </div>
-    </div>
-
-    {{-- Bar Chart --}}
-    <div class="card p-5 fade-in" style="animation-delay: 0.4s">
-        <div class="mb-4">
-            <h3 class="font-bold text-gray-800">Registrasi User Baru</h3>
-            <p class="text-xs text-gray-400 mt-0.5">Pertumbuhan tahun {{ date('Y') }}</p>
-        </div>
-        <div style="height: 260px; position: relative;">
-            <canvas id="bar-chart"></canvas>
-        </div>
-    </div>
-</div>
-
-{{-- ===== TABLES ROW ===== --}}
-<div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
-
-    {{-- Top Users --}}
-    <div class="card overflow-hidden xl:col-span-2 fade-in" style="animation-delay: 0.48s">
-        <div class="p-5 border-b border-gray-100 flex items-center justify-between">
-            <div>
-                <h3 class="font-bold text-gray-800">Top 5 Pengguna Aktif</h3>
-                <p class="text-xs text-gray-400 mt-0.5">Berdasarkan jumlah input terbanyak</p>
-            </div>
-            <a href="{{ route('admin.users.index') }}" class="text-xs text-green-600 font-semibold hover:text-green-700">Lihat Semua →</a>
-        </div>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Pengguna</th>
-                    <th>Email</th>
-                    <th class="text-right">Total Input</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($topUsers as $i => $user)
-                <tr>
-                    <td class="text-gray-400 font-bold">{{ $i + 1 }}</td>
-                    <td>
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                <span class="text-xs font-bold text-green-700">{{ strtoupper(substr($user->name,0,1)) }}</span>
-                            </div>
-                            <span class="font-semibold text-gray-800">{{ $user->name }}</span>
-                        </div>
-                    </td>
-                    <td class="text-gray-500">{{ $user->email }}</td>
-                    <td class="text-right">
-                        <span class="bg-green-50 text-green-700 font-bold text-xs px-2.5 py-1 rounded-lg">
-                            {{ $user->consumption_entries_count }}
-                        </span>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="4" class="text-center text-gray-400 py-8">Belum ada data</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    {{-- Category Stats --}}
-    <div class="card overflow-hidden fade-in" style="animation-delay: 0.56s">
-        <div class="p-5 border-b border-gray-100">
-            <h3 class="font-bold text-gray-800">Sebaran Kategori</h3>
-            <p class="text-xs text-gray-400 mt-0.5">Jumlah faktor per kategori</p>
-        </div>
-        <div class="p-5 space-y-4">
-            @php
-                $catColors = ['#16a34a','#2563eb','#d97706','#7c3aed','#dc2626'];
-                $maxCount = $categoriesStats->max('factors_count') ?: 1;
-            @endphp
-            @forelse($categoriesStats as $idx => $cat)
-            <div>
-                <div class="flex justify-between items-center mb-1.5">
-                    <p class="text-sm font-medium text-gray-700">{{ $cat->category_name }}</p>
-                    <span class="text-xs font-bold text-gray-500">{{ $cat->factors_count }} faktor</span>
-                </div>
-                <div class="w-full bg-gray-100 rounded-full h-2">
-                    <div class="h-2 rounded-full transition-all duration-700"
-                         style="width: {{ min(($cat->factors_count / $maxCount)*100, 100) }}%; background: {{ $catColors[$idx % 5] }}">
-                    </div>
-                </div>
-            </div>
-            @empty
-            <p class="text-gray-400 text-sm text-center py-4">Belum ada data kategori</p>
-            @endforelse
-        </div>
-    </div>
-</div>
-
+<h2 class="section-title">Perspektif strategis <small>Performance score</small></h2><div class="perspective-grid">@foreach($data['perspectives'] as $item)<article class="perspective"><i style="color:{{ $colors[$item['key']] }};background:{{ $colors[$item['key']] }}18" class="fas fa-{{ $item['key']==='financial'?'coins':($item['key']==='customer'?'handshake':($item['key']==='internal'?'gears':'graduation-cap')) }}"></i><div><span>{{ $item['name'] }}</span><strong>{{ $item['score'] }}<small>/100</small></strong><b><em style="width:{{ min(100,$item['score']) }}%;background:{{ $colors[$item['key']] }}"></em></b></div></article>@endforeach</div>
+<div class="charts"><article class="chart wide"><header><div><h2>Tren emisi</h2><small>Pergerakan total emisi harian</small></div><label>LINE CHART</label></header><div class="canvas"><canvas id="line-chart"></canvas></div></article><article class="chart"><header><div><h2>Komposisi emisi</h2><small>Berdasarkan kategori aktivitas</small></div><label>BAR</label></header><div class="canvas"><canvas id="bar-chart"></canvas></div></article><article class="chart"><header><div><h2>Kontribusi perspektif</h2><small>Distribusi nilai KPI</small></div><label>DONUT</label></header><div class="canvas"><canvas id="donut-chart"></canvas></div></article><article class="chart"><header><div><h2>Target periode</h2><small>Rasio terhadap baseline</small></div><label>GAUGE</label></header><div class="canvas gauge"><canvas id="gauge-chart"></canvas><strong>{{ $summary['achievement'] }}%</strong></div></article></div>
+<article class="table-card"><header><div><h2>Detail indikator KPI</h2><small>Data terukur dari setiap perspektif Balanced Scorecard</small></div><span>{{ count($data['details']) }} indikator</span></header><div class="table-scroll"><table><thead><tr><th>Perspektif</th><th>Indikator</th><th>Aktual</th><th>Target</th><th>Status</th></tr></thead><tbody>@forelse($data['details'] as $item)<tr><td><b class="pill" style="--accent:{{ $colors[$item['perspective']] }}">{{ $names[$item['perspective']] }}</b></td><td><strong>{{ $item['label'] }}</strong><small>{{ $item['unit'] }}</small></td><td class="actual">{{ number_format($item['value'],1) }}</td><td>{{ number_format($item['target'],1) }}</td><td><b class="status {{ $item['status']==='On track'?'ok':'warn' }}">{{ $item['status'] }}</b></td></tr>@empty<tr><td colspan="5" class="empty">Belum ada KPI pada filter ini.</td></tr>@endforelse</tbody></table></div></article></div>
 @endsection
-
-@push('scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
-<script>
-    Chart.defaults.global.defaultFontFamily = 'Inter, sans-serif';
-    Chart.defaults.global.defaultFontColor  = '#64748b';
-
-    // ─── Line Chart ───
-    new Chart(document.getElementById('line-chart').getContext('2d'), {
-        type: 'line',
-        data: {
-            labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
-            datasets: [{
-                label: 'Input Konsumsi',
-                data: @json($entriesData),
-                backgroundColor: 'rgba(22,163,74,0.1)',
-                borderColor: '#16a34a',
-                borderWidth: 2.5,
-                pointBackgroundColor: '#16a34a',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                fill: true,
-                tension: 0.4,
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            responsive: true,
-            legend: { display: false },
-            scales: {
-                xAxes: [{ gridLines: { display: false }, ticks: { fontColor: '#94a3b8', fontSize: 11 } }],
-                yAxes: [{ gridLines: { color: '#f1f5f9', drawBorder: false }, ticks: { fontColor: '#94a3b8', fontSize: 11, beginAtZero: true } }]
-            },
-            tooltips: { backgroundColor: '#1e293b', titleFontColor: '#fff', bodyFontColor: '#cbd5e1', cornerRadius: 8 }
-        }
-    });
-
-    // ─── Bar Chart ───
-    new Chart(document.getElementById('bar-chart').getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
-            datasets: [{
-                label: 'User Baru',
-                data: @json($usersData),
-                backgroundColor: 'rgba(37,99,235,0.15)',
-                borderColor: '#2563eb',
-                borderWidth: 2,
-                borderRadius: 6,
-                barThickness: 14,
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            responsive: true,
-            legend: { display: false },
-            scales: {
-                xAxes: [{ gridLines: { display: false }, ticks: { fontColor: '#94a3b8', fontSize: 11 } }],
-                yAxes: [{ gridLines: { color: '#f1f5f9', drawBorder: false }, ticks: { fontColor: '#94a3b8', fontSize: 11, beginAtZero: true } }]
-            },
-            tooltips: { backgroundColor: '#1e293b', titleFontColor: '#fff', bodyFontColor: '#cbd5e1', cornerRadius: 8 }
-        }
-    });
-</script>
-@endpush
+@push('scripts')<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script><script>
+const d=@json($data['charts']), c=['#0f766e','#2563eb','#d97706','#7c3aed','#dc2626']; const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:'#edf2f4'}}}};
+new Chart(document.getElementById('line-chart'),{type:'line',data:{labels:d.line.labels,datasets:[{data:d.line.values,borderColor:'#0f766e',backgroundColor:'#0f766e18',fill:true,tension:.4,pointRadius:2}]},options:base});new Chart(document.getElementById('bar-chart'),{type:'bar',data:{labels:d.bar.labels,datasets:[{data:d.bar.values,backgroundColor:'#d97706cc',borderRadius:6}]},options:base});new Chart(document.getElementById('donut-chart'),{type:'doughnut',data:{labels:d.donut.labels,datasets:[{data:d.donut.values,backgroundColor:c,borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'bottom'}}}});new Chart(document.getElementById('gauge-chart'),{type:'doughnut',data:{datasets:[{data:[{{ $summary['achievement'] }},{{ max(0,100-$summary['achievement']) }}],backgroundColor:['#f97316','#edf0f3'],borderWidth:0,circumference:180,rotation:270}]},options:{responsive:true,maintainAspectRatio:false,cutout:'78%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});document.getElementById('refresh-kpi').onclick=()=>{const b=document.getElementById('refresh-kpi');b.classList.add('spin');fetch('{{ route('admin.dashboard.refresh') }}?'+new URLSearchParams(new FormData(document.getElementById('kpi-filter-form'))),{headers:{Accept:'application/json'}}).then(()=>location.reload())};
+</script>@endpush
+@push('styles')<style>
+.kpi-hero{background:linear-gradient(120deg,#062e2a,#075e54 55%,#0f766e);color:white;border-radius:22px;padding:34px 38px;display:flex;justify-content:space-between;align-items:center;min-height:190px;overflow:hidden}.eyebrow{color:#8ee6c2;font-size:10px;font-weight:800;letter-spacing:.16em}.kpi-hero h1{font-size:32px;line-height:1.1;margin:12px 0 8px;letter-spacing:-.04em}.kpi-hero em{color:#8ee6c2;font-style:normal}.kpi-hero p{color:#ffffffaa;font-size:13px}.hero-orbit{width:130px;height:130px;border:1px solid #ffffff33;border-radius:50%;display:grid;place-items:center;font-size:35px;color:#8ee6c2}.filter-panel{background:#fff;border:1px solid #e5eaf0;border-radius:16px;padding:14px;margin:16px 0 9px;display:flex;gap:12px;align-items:end;box-shadow:0 6px 20px #102a4308}.filter-heading{margin-right:auto;display:flex;gap:9px;align-items:center;font-size:12px}.filter-heading i{color:#0f766e;background:#ecfdf5;padding:10px;border-radius:9px}.filter-panel label{font-size:10px;color:#8993a2;font-weight:700}.filter-panel input,.filter-panel select{display:block;margin-top:4px;border:1px solid #dce3ea;border-radius:7px;padding:8px;font:inherit;font-size:11px;color:#344054}.action{border:0;border-radius:7px;padding:9px 12px;font-weight:700;font-size:11px;cursor:pointer}.primary{background:#0f766e;color:#fff}.ghost{background:#f1f5f9;color:#526071}.spin i{animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.toolbar{display:flex;justify-content:space-between;color:#98a2b3;font-size:10px;margin:14px 2px}.toolbar a{color:#64748b;text-decoration:none;margin-left:12px;font-weight:700}.toolbar .excel{color:#15803d}.metric-grid,.perspective-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.metric,.perspective,.chart,.table-card{background:#fff;border:1px solid #e5eaf0;border-radius:16px;box-shadow:0 6px 18px #102a4307}.metric{padding:18px;border-top:3px solid var(--accent)}.metric.green{--accent:#0f766e}.metric.blue{--accent:#2563eb}.metric.purple{--accent:#7c3aed}.metric.orange{--accent:#f97316}.metric>div{display:flex;justify-content:space-between;color:#8993a2;font-size:11px;font-weight:700}.metric>div i{color:var(--accent);font-size:16px}.metric strong{display:block;font-size:29px;letter-spacing:-.05em;margin:13px 0 2px}.metric small,.perspective small,.chart small,.table-card small{font-size:10px;color:#9ba5b3}.section-title{font-size:14px;margin:26px 2px 11px}.section-title small{float:right;color:#9ba5b3;font-size:10px;font-weight:400}.perspective{padding:13px;display:flex;gap:11px;align-items:center}.perspective>i{width:38px;height:38px;border-radius:11px;display:grid;place-items:center}.perspective span{display:block;font-size:10px;color:#7e8998;font-weight:700}.perspective strong{display:block;font-size:19px;margin:3px 0}.perspective strong small{font-size:9px}.perspective b{display:block;height:4px;background:#f1f3f6;border-radius:4px;overflow:hidden}.perspective b em{display:block;height:100%;border-radius:4px}.charts{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:13px;margin-top:21px}.chart.wide{grid-column:span 2}.chart{padding:17px}.chart header,.table-card>header{display:flex;justify-content:space-between;align-items:start}.chart h2,.table-card h2{font-size:13px;margin:0;font-weight:800}.chart header label{font-size:8px;color:#0f766e;background:#ecfdf5;padding:5px 7px;border-radius:5px;font-weight:800}.canvas{height:220px;margin-top:14px;position:relative}.gauge strong{position:absolute;inset:0;display:grid;place-items:center;font-size:24px}.table-card{margin-top:13px;overflow:hidden}.table-card>header{padding:17px;border-bottom:1px solid #edf0f3}.table-card>header>span{background:#f8fafc;color:#7c8796;padding:6px 9px;border-radius:7px;font-size:10px}.table-scroll{overflow:auto}table{width:100%;border-collapse:collapse}th{padding:11px 17px;text-align:left;background:#fbfcfd;color:#9ba5b3;font-size:9px;text-transform:uppercase}td{padding:13px 17px;border-top:1px solid #f0f2f5;font-size:11px;color:#647184}td strong,td small{display:block}td small{color:#a9b1bd;margin-top:3px;font-size:9px}.actual{font-weight:800;color:#172033;font-size:13px}.pill{color:var(--accent);font-size:10px}.status{font-size:9px;padding:5px 7px;border-radius:6px}.ok{background:#ecfdf5;color:#15803d}.warn{background:#fff7ed;color:#c2410c}.empty{text-align:center;padding:28px!important}@media(max-width:1050px){.metric-grid,.perspective-grid{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr 1fr}.chart.wide{grid-column:span 2}.filter-panel{flex-wrap:wrap}.filter-heading{width:100%}}@media(max-width:650px){.kpi-hero{padding:25px}.kpi-hero h1{font-size:25px}.hero-orbit{display:none}.metric-grid,.perspective-grid,.charts{grid-template-columns:1fr}.chart.wide{grid-column:auto}.filter-panel label{flex:1}.filter-panel input,.filter-panel select{width:100%}}
+</style>@endpush

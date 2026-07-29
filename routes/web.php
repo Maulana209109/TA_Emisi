@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EmissionWebController;
+use App\Http\Controllers\KpiReportExportController;
 
 // ── Tamu (belum login) ──────────────────────────────────────────────────────
 Route::middleware('guest')->group(function () {
@@ -25,8 +26,11 @@ Route::middleware(['auth', 'role:admin'])
     ->name('admin.')
     ->group(function () {
 
-        // Dashboard
+        // Dashboard Balanced Scorecard
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard/refresh', [KpiReportExportController::class, 'refresh'])->name('dashboard.refresh');
+        Route::get('/dashboard/export', [KpiReportExportController::class, 'csv'])->name('dashboard.export');
+        Route::get('/dashboard/report', [KpiReportExportController::class, 'report'])->name('dashboard.report');
 
         // User Management
         Route::get('/users',         [AdminController::class, 'userIndex'])->name('users.index');
